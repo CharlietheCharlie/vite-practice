@@ -72,8 +72,9 @@ const intervalChange = function (index) {
 
 }
 const setTime =() => {
-    console.log(weekdays.value['week_day1'].indexOf(1));
+    
     serveStarts.forEach((serveStart, index) => {
+        console.log(weekdays.value[`week_day${index}`].indexOf(1) >= 0);
         if (weekdays.value[`week_day${index}`].indexOf(1) >= 0) {
             console.log("set");
             serveStart.value = weekdays.value[`week_day${index}`].indexOf(1);
