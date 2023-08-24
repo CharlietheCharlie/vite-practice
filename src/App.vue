@@ -16,6 +16,7 @@ $main:rgb(88, 88, 232);
     margin: 0 auto;
     text-align: center;
     font-size: 14px;
+    margin-bottom: 100px;
     h1{
         font-size: 30px;
         font-weight: bold;

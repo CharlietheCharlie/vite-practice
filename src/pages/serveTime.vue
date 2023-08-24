@@ -1,6 +1,7 @@
 <template>
     <div class="fixed">
-        <pre>{{ weekdays }}</pre>
+        <pre v-if="showData">{{ weekdays }}</pre>
+        <button @click="showData=!showData">查看資料格式</button>
     </div>
     <div class="content">
 
@@ -19,7 +20,7 @@
                 <!-- 起始時間 -->
                 <select name="serve" :id="'serveStart_' + index" ref="serveStarts" @change="intervalChange(index)">
                     <option value="0">00 : 00</option>
-                    <option v-for="interval in 46" :value="interval" :disabled="interval > weekdays[index].lastIndexOf(1)">
+                    <option v-for="interval in 46" :value="interval" :disabled="interval >= weekdays[index].lastIndexOf(1)">
                         {{ String(new Date(new Date(resetDate).setMinutes(interval * 30)).getHours()).padStart(2, "0") }} :
                         {{ String(new Date(new Date(resetDate).setMinutes(interval * 30)).getMinutes()).padStart(2, "0") }}
                     </option>
@@ -60,6 +61,7 @@ const weekdays = ref({
     "week_day6": "111111111111111111111111111111111111111111111111"
 })
 const chineseWeekdays = ref(["一", "二", "三", "四", "五", "六", "日"])
+const showData = ref(false);
 const intervalChange = function (index) {
     const startSelect = document.getElementById(`serveStart_${index}`).value;
     const endSelect = document.getElementById(`serveEnd_${index}`).value;
