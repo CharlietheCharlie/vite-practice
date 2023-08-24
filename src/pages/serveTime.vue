@@ -1,5 +1,10 @@
 <template>
+    <div class="fixed">
+        <pre>{{ weekdays }}</pre>
+    </div>
     <div class="content">
+
+
         <h1 class="title">供應時間</h1>
         <div class="weekday" v-for="weekday, index in weekdays">
             <h2>星期{{ chineseWeekdays[index[8]] }}</h2>
@@ -54,7 +59,7 @@ const weekdays = ref({
     "week_day5": "000000000000000000000000000000000000111111111111",
     "week_day6": "111111111111111111111111111111111111111111111111"
 })
-const chineseWeekdays = ref(["一","二","三","四","五","六","日"])
+const chineseWeekdays = ref(["一", "二", "三", "四", "五", "六", "日"])
 const intervalChange = function (index) {
     const startSelect = document.getElementById(`serveStart_${index}`).value;
     const endSelect = document.getElementById(`serveEnd_${index}`).value;
@@ -85,82 +90,93 @@ onMounted(() => {
 </script>
 
 <style lang="scss" scoped>
-.weekday{
+.weekday {
     margin: 10px;
     display: flex;
     flex-direction: column;
     align-items: center;
     // justify-content: center;
     gap: 20px;
-    h2{
+
+    h2 {
         flex-basis: 10%;
         font-weight: bold;
     }
+
     .switch {
-    position: relative;
-    display: inline-block;
-    width: 60px;
-    height: 34px;
+        position: relative;
+        display: inline-block;
+        width: 60px;
+        height: 34px;
 
-    input {
-        opacity: 0;
-        width: 0;
-        height: 0;
+        input {
+            opacity: 0;
+            width: 0;
+            height: 0;
 
-        &:checked+.slider {
-            background-color: #4f9cf5;
-            &:before {
-            -webkit-transform: translateX(26px);
-            -ms-transform: translateX(26px);
-            transform: translateX(26px);
+            &:checked+.slider {
+                background-color: #4f9cf5;
+
+                &:before {
+                    -webkit-transform: translateX(26px);
+                    -ms-transform: translateX(26px);
+                    transform: translateX(26px);
+                }
+            }
+
+            &:focus+.slider {
+                box-shadow: 0 0 1px #2196F3;
+            }
+
+
+
         }
-        }
 
-        &:focus+.slider {
-            box-shadow: 0 0 1px #2196F3;
-        }
-
-
-
-    }
-
-    .slider {
-        position: absolute;
-        cursor: pointer;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background-color: #ccc;
-        -webkit-transition: .4s;
-        transition: .4s;
-        border-radius: 34px;
-
-        &:before {
+        .slider {
             position: absolute;
-            content: "";
-            height: 26px;
-            width: 26px;
-            left: 4px;
-            bottom: 4px;
-            background-color: white;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
             -webkit-transition: .4s;
             transition: .4s;
-            border-radius: 50%;
+            border-radius: 34px;
+
+            &:before {
+                position: absolute;
+                content: "";
+                height: 26px;
+                width: 26px;
+                left: 4px;
+                bottom: 4px;
+                background-color: white;
+                -webkit-transition: .4s;
+                transition: .4s;
+                border-radius: 50%;
+            }
+        }
+    }
+
+    .select {
+        display: flex;
+        justify-content: center;
+
+        select {
+            padding: 10px 20px;
+            border: 2px solid rgb(204, 204, 204);
+            border-radius: 5px;
         }
     }
 }
-.select{
-    display: flex;
-    justify-content: center;
-    select{
-    padding: 10px 20px;
-    border: 2px solid rgb(204, 204, 204);
-    border-radius: 5px;
-}
-}
-}
 
-
-</style>
+.fixed {
+    text-align: center;
+    width: 100%;
+    position: fixed;
+    bottom: 0;
+    background-color: #fff;
+    z-index: 1;
+}</style>
 
