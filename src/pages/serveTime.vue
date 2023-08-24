@@ -49,8 +49,8 @@ const resetDate = computed(() => {
     date.setHours(0, 0, 0);
     return new Date(date);
 })
-const serveStarts = ([]);
-const serveEnds = ([])
+const serveStarts = ref([]);
+const serveEnds = ref([])
 const weekdays = ref({
     "week_day0": "000000000000000000000000000000000000000000000000",
     "week_day1": "111111111111111111111111111111111111111111111111",
@@ -72,16 +72,14 @@ const intervalChange = function (index) {
 
 }
 const setTime =() => {
-    
-    serveStarts.forEach((serveStart, index) => {
-        console.log(weekdays.value[`week_day${index}`].indexOf(1) >= 0);
+    serveStarts.value.forEach((serveStart, index) => {
         if (weekdays.value[`week_day${index}`].indexOf(1) >= 0) {
             console.log("set");
             serveStart.value = weekdays.value[`week_day${index}`].indexOf(1);
         }
 
     })
-    serveEnds.forEach((serveEnd, index) => {
+    serveEnds.value.forEach((serveEnd, index) => {
         if (weekdays.value[`week_day${index}`].indexOf(1) >= 0) {
             serveEnd.value = weekdays.value[`week_day${index}`].lastIndexOf(1);
         }
