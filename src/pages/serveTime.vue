@@ -83,11 +83,16 @@ const setTime =async () => {
         serveStarts[i].value = await weekdays.value[`week_day${i}`].indexOf(1);
         }
     }
-    serveEnds.forEach((serveEnd, index) => {
-        if (weekdays.value[`week_day${index}`].indexOf(1) >= 0) {
-            serveEnd.value = weekdays.value[`week_day${index}`].lastIndexOf(1);
+    // serveEnds.forEach((serveEnd, index) => {
+    //     if (weekdays.value[`week_day${index}`].indexOf(1) >= 0) {
+    //         serveEnd.value = weekdays.value[`week_day${index}`].lastIndexOf(1);
+    //     }
+    // })
+    for(let i = 0; i < serveEnds.length;i++){
+        if (weekdays.value[`week_day${i}`].indexOf(1) >= 0) {
+        serveEnds[i].value = await weekdays.value[`week_day${i}`].lastIndexOf(1);
         }
-    })
+    }
 }
 onMounted(() => {
 
