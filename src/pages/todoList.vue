@@ -6,21 +6,25 @@
             <input @keydown.enter="postTask" v-model="newTask" id="add-todo" type="text"><button @click="postTask"
                 class="rounded bg-blue-500 text-white m-1 p-1 hover:bg-blue-700">新增</button>
         </div>
-        <!-- 事項 -->   
+        <!-- 事項 -->
         <div class="column">
+        
             <ul>
                 <li>done</li>
                 <li>事項內容</li>
             </ul>
         </div>
         <div v-for="task, index in todoData" :key="task" class="task">
-            <div class="head" :class="{'edit':task.edit}" @click="task.edit = true">
-                <input @click.stop type="checkbox" v-model="task.completed">
-                <p v-if="!task.edit">{{ task.title }}</p>
-                <input @click.stop v-if="task.edit" v-model="task.title" type="text">
-                <button class="rounded bg-gray-300 text-black m-1 p-1 hover:bg-gray-500" v-if="task.edit" @click.stop="updateTask(task, task.id); task.edit = false">確認</button>
+            <div class="head" ref="tasks" :class="{ 'edit': task.edit, 'done': task.completed }" @click="task.edit = true">
+                <input @click.stop="updateTask(task, task.id);toggleDone(index)" type="checkbox" v-model="task.completed">
+                <p v-if="!task.edit"><del v-if="task.completed">{{ task.title }}</del><span v-if="!task.completed">{{
+                    task.title }}</span></p>
+                <input :disabled="task.completed" @click.stop v-if="task.edit" v-model="task.title" type="text">
+                <button class="rounded bg-gray-300 text-black m-1 p-1 hover:bg-gray-500" v-if="task.edit"
+                    @click.stop="updateTask(task, task.id); task.edit = false">確認</button>
             </div>
-            <button class="delete-button" @click="deleteTask(index, task.id)"><img class="delete-icon" src="@/assets/delete.svg" alt=""></button>
+            <button class="delete-button" @click="deleteTask(index, task.id)"><img class="delete-icon"
+                    src="@/assets/delete.svg" alt=""></button>
         </div>
     </div>
 </template>
@@ -30,6 +34,7 @@ import { onMounted, ref } from 'vue';
 import axios from 'axios';
 const todoData = ref();
 const newTask = ref();
+const tasks = ref();
 const postTask = () => {
     const template = { "userId": 1, "id": 1, "title": "", "completed": false, "edit": false };
     template["title"] = newTask.value;
@@ -62,30 +67,44 @@ const deleteTask = (index, id) => {
         .then(res => console.log(res))
         .catch(err => console.log(err));
 }
+const completeResort = ()=>{
+    todoData.value = todoData.value.sort(function (a, b) {
+        return a.completed > b.completed ? 1 : -1;
+    });
+}
+const toggleDone = (index)=>{
+    setTimeout(()=>{completeResort()},2000);
+}
 onMounted(async () => {
     const datas = await axios('https://jsonplaceholder.typicode.com/todos/').then(res => res.data).catch(function (error) {
         console.log(error);
     });
     todoData.value = datas.map((data) => data = { ...data, 'edit': false });
+    completeResort();
 })
 </script>
 
 <style lang="scss" scoped>
-.column{
+.column {
     margin: 10px;
-    ul{display: flex;
-        gap:1vw;
+
+    ul {
+        display: flex;
+        gap: 1vw;
         padding-left: 10px;
-        :first-child{
+
+        :first-child {
             flex-basis: 10%;
         }
-        li{
+
+        li {
             text-align: center;
             font-weight: bold;
             font-size: 15px;
         }
     }
 }
+
 .task {
     margin: 10px;
     position: relative;
@@ -122,29 +141,48 @@ onMounted(async () => {
         background-color: #ffffff;
         cursor: pointer;
         box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
-        
+
 
         &:hover {
             background-color: #dbdbdb;
         }
 
-        &.edit{
+        &.edit {
             cursor: default;
-            background-color: #c2c9d6;
-            button{
-            margin-left: auto;
+            background-color: #addcef;
+
+            button {
+                margin-left: auto;
+            }
         }
-        }
-        input[type="checkbox"]{
-            flex-basis:10%;
+
+        input[type="checkbox"] {
+            flex-basis: 10%;
             width: 20px;
             height: 20px;
         }
+
         input[type="text"] {
             flex-basis: 70%;
         }
-       
-    }
 
-}
-</style>
+        &.done {
+            background-color: #dcdcdc;
+            color: grey;
+            position: relative;
+        }
+        &.remove{
+            animation-name: goDown;
+            animation-duration: 2s;
+            background-color: red;
+        }
+
+    }
+@keyframes goDown{
+    from{
+        top:0;
+    }to{
+        top:100vh;
+    }
+} 
+}</style>

@@ -2,16 +2,15 @@
     <div class="fixed">
         <pre v-if="showData">{{ weekdays }}</pre>
         <button @click="showData=!showData">查看資料格式</button>
+        {{ onePositions }}
     </div>
     <div class="content">
-
-
         <h1 class="title">供應時間</h1>
-        <div class="weekday" v-for="weekday, index in weekdays">
+        <div class="weekday" :class="index" v-for="weekday, index in weekdays">
             <h2>星期{{ chineseWeekdays[index[8]] }}</h2>
             <label class="switch">
                 <input type="checkbox" :checked="Number(weekday)"
-                    @change="Number(weekday) ? (weekdays[index] = '0'.repeat(48), setTime()) : (weekdays[index] = '1'.repeat(48), setTime())">
+                    @change="Number(weekday) ? (weekdays[index] = '0'.repeat(48), setTime(),removeAllSelectors(index)) : (weekdays[index] = '1'.repeat(48), setTime())">
                 <span class="slider round"></span>
             </label>
             <p v-if="Number(weekday)">本日供餐</p>
@@ -36,21 +35,25 @@
                     </option>
                     <option value="47">23 : 59</option>
                 </select>
+                
             </div>
-
+            <TimeSelector v-for="selector in selectorAmount[index]" :weekdays="weekdays" :index="index" :weekday="weekday"></TimeSelector>
+            <button class="rounded bg-gray-200 py-2 px-4 hover:bg-gray-400" @click="addSelector(index)" v-if="weekday!=='0'.repeat(48)&&weekday!=='1'.repeat(48)">新增</button>
         </div>
     </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue';
+import TimeSelector from '@/components/TimeSelector.vue';
 const date = new Date();
 const resetDate = computed(() => {
     date.setHours(0, 0, 0);
     return new Date(date);
-})
+});
+const selectorAmount = ref({});
 const serveStarts = ref([]);
-const serveEnds = ref([])
+const serveEnds = ref([]);
 const weekdays = ref({
     "week_day0": "000000000000000000000000000000000000000000000000",
     "week_day1": "111111111111111111111111111111111111111111111111",
@@ -60,8 +63,11 @@ const weekdays = ref({
     "week_day5": "000000000000000000000000000000000000111111111111",
     "week_day6": "111111111111111111111111111111111111111111111111"
 })
+const onePositions = ref({});
 const chineseWeekdays = ref(["一", "二", "三", "四", "五", "六", "日"])
 const showData = ref(false);
+
+//變更時段後修改資料
 const intervalChange = function (index) {
     const startSelect = document.getElementById(`serveStart_${index}`).value;
     const endSelect = document.getElementById(`serveEnd_${index}`).value;
@@ -71,10 +77,44 @@ const intervalChange = function (index) {
 
 
 }
+//新增時段選擇器
+const addSelector = (index)=>{
+        if(selectorAmount.value[index]){
+            selectorAmount.value[index]+=1;
+            return
+        }
+        selectorAmount.value[index]=1;
+
+}
+const removeAllSelectors = (index)=>{
+    console.log(selectorAmount.value[index]);
+    selectorAmount.value[index]=0;
+}
+//取得1的位置
+const getOnePosition = (weekday,index)=>{
+const positions = [];
+let start = -1;
+for (let i = 0; i < weekday.length; i++) {
+    if (weekday[i] === '1') {
+        if (start === -1) {
+            start = i;
+        }
+    } else {
+        if (start !== -1) {
+            positions.push({ start, end: i - 1 });
+            start = -1;
+        }
+    }
+}
+if (start !== -1) {
+    positions.push({ start, end: weekday.length - 1 });
+}
+onePositions.value[index]=positions;
+}
+//設置選擇器時間
 const setTime =() => {
     serveStarts.value.forEach((serveStart, index) => {
         if (weekdays.value[`week_day${index}`].indexOf(1) >= 0) {
-            console.log("set");
             serveStart.value = weekdays.value[`week_day${index}`].indexOf(1);
         }
 
@@ -89,6 +129,9 @@ const setTime =() => {
 onMounted(() => {
 
     setTime();
+    for(let weekday in weekdays.value){
+        getOnePosition(weekdays.value[weekday],weekday);
+    }
 
 })
 </script>
@@ -184,5 +227,10 @@ onMounted(() => {
     bottom: 0;
     background-color: #fff;
     z-index: 1;
+    button{
+        width: 100%;
+    &:hover{
+        background-color: rgb(186, 186, 255);
+    }}
 }</style>
 

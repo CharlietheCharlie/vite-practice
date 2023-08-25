@@ -11,6 +11,7 @@
 
 <style lang="scss">
 $main:rgb(88, 88, 232);
+
 .content{
     width:80vw;
     margin: 0 auto;

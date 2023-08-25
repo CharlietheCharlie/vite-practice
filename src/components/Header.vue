@@ -1,7 +1,7 @@
 <template>
     <div>
-        <header class="flex gap-x-4">
-            <ul class="">
+        <header >
+            <ul>
                 <li v-for="list, index in lists">
                     <RouterLink :to="list">{{ index }}</RouterLink>
                 </li>
@@ -14,10 +14,26 @@
 import {RouterLink} from 'vue-router'
 
 const lists = {
-    "題目1": "/todo-list",
-    "題目2": "/serve-time",
-    "題目3": "/code-review",
+    "Todo List": "/todo-list",
+    "Serve Time": "/serve-time",
+    "Code Review": "/code-review",
 }
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+header{
+    ul{
+        text-align: center;
+        display: flex;
+        align-items:center;
+        justify-content: end;
+        li{
+            padding: 20px 30px;
+          
+            &:hover{
+                background-color: rgb(104, 157, 236);
+            }
+        };
+    };
+}
+</style>
