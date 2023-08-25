@@ -8,18 +8,20 @@
         </div>
         <!-- 事項 -->
         <div class="column">
-        
+
             <ul>
                 <li>done</li>
                 <li>事項內容</li>
+                <li><button @click="completeResort"
+                        class="bg-gray-300 hover:bg-gray-500 px-4 py-2 rounded">將已完成事項排到最下方</button></li>
             </ul>
         </div>
         <div v-for="task, index in todoData" :key="task" class="task">
             <div class="head" ref="tasks" :class="{ 'edit': task.edit, 'done': task.completed }" @click="task.edit = true">
-                <input @click.stop="updateTask(task, task.id);toggleDone(index)" type="checkbox" v-model="task.completed">
+                <input @click.stop="updateTask(task, task.id)" type="checkbox" v-model="task.completed">
                 <p v-if="!task.edit"><del v-if="task.completed">{{ task.title }}</del><span v-if="!task.completed">{{
                     task.title }}</span></p>
-                <input :disabled="task.completed" @click.stop v-if="task.edit" v-model="task.title" type="text">
+                <input :disabled="task.completed" @keydown.enter="updateTask(task, task.id);task.edit = false" @click.stop v-if="task.edit" v-model="task.title" type="text">
                 <button class="rounded bg-gray-300 text-black m-1 p-1 hover:bg-gray-500" v-if="task.edit"
                     @click.stop="updateTask(task, task.id); task.edit = false">確認</button>
             </div>
@@ -32,20 +34,25 @@
 <script setup>
 import { onMounted, ref } from 'vue';
 import axios from 'axios';
-const todoData = ref();
+const todoData = ref([]);
 const newTask = ref();
 const tasks = ref();
 const postTask = () => {
-    const template = { "userId": 1, "id": 1, "title": "", "completed": false, "edit": false };
-    template["title"] = newTask.value;
-    todoData.value.unshift({ ...template });
-    delete template.edit;
-    axios.post('https://jsonplaceholder.typicode.com/todos/', {
-        "123": "123"
-    })
-        .then(res => console.log(res))
-        .catch(err => console.log(err));
-    newTask.value = "";
+    if (newTask.value) {
+        document.getElementById("add-todo").classList.remove("empty");
+        const template = { "userId": 1, "id": 1, "title": "", "completed": false, "edit": false };
+        template["title"] = newTask.value;
+        todoData.value.unshift({ ...template });
+        delete template.edit;
+        axios.post('https://jsonplaceholder.typicode.com/todos/', {
+            data: template
+        })
+            .then(res => console.log(res))
+            .catch(err => console.log(err));
+        newTask.value = "";
+    } else {
+        document.getElementById("add-todo").classList.add("empty");
+    }
 }
 const updateTask = (task, id) => {
     const putTask = { ...task };
@@ -67,24 +74,28 @@ const deleteTask = (index, id) => {
         .then(res => console.log(res))
         .catch(err => console.log(err));
 }
-const completeResort = ()=>{
+const completeResort = () => {
     todoData.value = todoData.value.sort(function (a, b) {
         return a.completed > b.completed ? 1 : -1;
     });
 }
-const toggleDone = (index)=>{
-    setTimeout(()=>{completeResort()},2000);
-}
+// const toggleDone = (index)=>{
+//     setTimeout(()=>{completeResort()},2000);
+// }
 onMounted(async () => {
     const datas = await axios('https://jsonplaceholder.typicode.com/todos/').then(res => res.data).catch(function (error) {
         console.log(error);
     });
     todoData.value = datas.map((data) => data = { ...data, 'edit': false });
-    completeResort();
+    // completeResort();
 })
 </script>
 
 <style lang="scss" scoped>
+.empty {
+    border: 1px solid red;
+}
+
 .column {
     margin: 10px;
 
@@ -92,6 +103,7 @@ onMounted(async () => {
         display: flex;
         gap: 1vw;
         padding-left: 10px;
+        align-items: center;
 
         :first-child {
             flex-basis: 10%;
@@ -101,6 +113,10 @@ onMounted(async () => {
             text-align: center;
             font-weight: bold;
             font-size: 15px;
+
+            &:has(button) {
+                margin-left: auto;
+            }
         }
     }
 }
@@ -171,18 +187,22 @@ onMounted(async () => {
             color: grey;
             position: relative;
         }
-        &.remove{
+
+        &.remove {
             animation-name: goDown;
             animation-duration: 2s;
             background-color: red;
         }
 
     }
-@keyframes goDown{
-    from{
-        top:0;
-    }to{
-        top:100vh;
+
+    @keyframes goDown {
+        from {
+            top: 0;
+        }
+
+        to {
+            top: 100vh;
+        }
     }
-} 
 }</style>

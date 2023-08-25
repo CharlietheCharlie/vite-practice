@@ -1,8 +1,7 @@
 <template>
     <div class="fixed">
         <pre v-if="showData">{{ weekdays }}</pre>
-        <button @click="showData=!showData">查看資料格式</button>
-        {{ onePositions }}
+        <button @click="showData = !showData">查看資料格式</button>
     </div>
     <div class="content">
         <h1 class="title">供應時間</h1>
@@ -10,35 +9,16 @@
             <h2>星期{{ chineseWeekdays[index[8]] }}</h2>
             <label class="switch">
                 <input type="checkbox" :checked="Number(weekday)"
-                    @change="Number(weekday) ? (weekdays[index] = '0'.repeat(48), setTime(),removeAllSelectors(index)) : (weekdays[index] = '1'.repeat(48), setTime())">
+                    @change="Number(weekday) ? (weekdays[index] = '0'.repeat(48), getOnePosition(weekdays[index], index), removeAllSelectors(index)) : (weekdays[index] = '1'.repeat(48), getOnePosition(weekdays[index], index))">
                 <span class="slider round"></span>
             </label>
             <p v-if="Number(weekday)">本日供餐</p>
             <p v-if="!Number(weekday)">本日不供餐</p>
-            <div class="select" v-show="Number(weekday)">
-                <!-- 起始時間 -->
-                <select name="serve" :id="'serveStart_' + index" ref="serveStarts" @change="intervalChange(index)">
-                    <option value="0">00 : 00</option>
-                    <option v-for="interval in 46" :value="interval" :disabled="interval >= weekdays[index].lastIndexOf(1)">
-                        {{ String(new Date(new Date(resetDate).setMinutes(interval * 30)).getHours()).padStart(2, "0") }} :
-                        {{ String(new Date(new Date(resetDate).setMinutes(interval * 30)).getMinutes()).padStart(2, "0") }}
-                    </option>
-                    <!-- <option value="47">23 : 59</option> -->
-                </select>
-                <h2> ~ </h2>
-                <!-- 結束時間 -->
-                <select name="serve" :id="'serveEnd_' + index" ref="serveEnds" @change="intervalChange(index)">
-                    <!-- <option value="0">00 : 00</option> -->
-                    <option v-for="interval in 46" :value="interval" :disabled="interval <= weekdays[index].indexOf(1)">
-                        {{ String(new Date(new Date(resetDate).setMinutes(interval * 30)).getHours()).padStart(2, "0") }} :
-                        {{ String(new Date(new Date(resetDate).setMinutes(interval * 30)).getMinutes()).padStart(2, "0") }}
-                    </option>
-                    <option value="47">23 : 59</option>
-                </select>
-                
-            </div>
-            <TimeSelector v-for="selector in selectorAmount[index]" :weekdays="weekdays" :index="index" :weekday="weekday"></TimeSelector>
-            <button class="rounded bg-gray-200 py-2 px-4 hover:bg-gray-400" @click="addSelector(index)" v-if="weekday!=='0'.repeat(48)&&weekday!=='1'.repeat(48)">新增</button>
+            <TimeSelector v-for="sec, i in onePositions[index]?.length" :onePositions="onePositions" :weekdays="weekdays"
+                :index="index" :weekday="weekday" :section="onePositions[index][i]" @change="intervalChange(index)">
+            </TimeSelector>
+            <button class="rounded bg-gray-200 py-2 px-4 hover:bg-gray-400" @click="addSelector(index)"
+                v-if="weekday !== '0'.repeat(48) && weekday !== '1'.repeat(48)">新增</button>
         </div>
     </div>
 </template>
@@ -67,70 +47,62 @@ const onePositions = ref({});
 const chineseWeekdays = ref(["一", "二", "三", "四", "五", "六", "日"])
 const showData = ref(false);
 
-//變更時段後修改資料
+//選擇器元件變更時段後將區間轉換為資料格式
 const intervalChange = function (index) {
-    const startSelect = document.getElementById(`serveStart_${index}`).value;
-    const endSelect = document.getElementById(`serveEnd_${index}`).value;
-    console.log(startSelect, endSelect);
+    //取得變動的選擇器
+    const sections = onePositions.value[index];
+    //先建立一個全部為0的資料
+    let newWeekdays = sections.length<=1?'0'.repeat(weekdays.value[index].length):weekdays.value[index];
+    //用迴圈找出有幾個選擇器區間
+    for (let i = 0; i < sections.length; i++) {
+        
 
-    weekdays.value[index] = '0'.repeat(startSelect) + '1'.repeat(endSelect - startSelect + 1) + '0'.repeat(47 - endSelect)
+        newWeekdays = newWeekdays.substring(0, sections[i].start) + '1'.repeat(sections[i].end-sections[i].start) + newWeekdays.substring(sections[i].end,weekdays.value[index].length);
+        
+        console.log(newWeekdays);
+    }
+    weekdays.value[index] = newWeekdays;
 
-
+    getOnePosition(weekdays.value[index], index);
 }
 //新增時段選擇器
-const addSelector = (index)=>{
-        if(selectorAmount.value[index]){
-            selectorAmount.value[index]+=1;
-            return
-        }
-        selectorAmount.value[index]=1;
-
+const addSelector = (index) => {
+    if (onePositions.value[index]) {
+        onePositions.value[index].push({ "start": "choose", "end": "choose" });
+        return
+    }
+    
 }
-const removeAllSelectors = (index)=>{
-    console.log(selectorAmount.value[index]);
-    selectorAmount.value[index]=0;
+const removeAllSelectors = (index) => {
+    selectorAmount.value[index] = 0;
 }
-//取得1的位置
-const getOnePosition = (weekday,index)=>{
-const positions = [];
-let start = -1;
-for (let i = 0; i < weekday.length; i++) {
-    if (weekday[i] === '1') {
-        if (start === -1) {
-            start = i;
-        }
-    } else {
-        if (start !== -1) {
-            positions.push({ start, end: i - 1 });
-            start = -1;
+//取得1的位置，並轉換為選擇器元件接收的數值
+const getOnePosition = (weekday, index) => {
+    const positions = [];
+    let start = -1;
+    for (let i = 0; i < weekday.length; i++) {
+        if (weekday[i] === '1') {
+            if (start === -1) {
+                start = i;
+            }
+        } else {
+            if (start !== -1) {
+                positions.push({ start, end: i });
+                start = -1;
+            }
         }
     }
+    if (start !== -1) {
+        positions.push({ start, end: weekday.length  });
+    }
+    onePositions.value[index] = positions;
 }
-if (start !== -1) {
-    positions.push({ start, end: weekday.length - 1 });
-}
-onePositions.value[index]=positions;
-}
-//設置選擇器時間
-const setTime =() => {
-    serveStarts.value.forEach((serveStart, index) => {
-        if (weekdays.value[`week_day${index}`].indexOf(1) >= 0) {
-            serveStart.value = weekdays.value[`week_day${index}`].indexOf(1);
-        }
 
-    })
-    serveEnds.value.forEach((serveEnd, index) => {
-        if (weekdays.value[`week_day${index}`].indexOf(1) >= 0) {
-            serveEnd.value = weekdays.value[`week_day${index}`].lastIndexOf(1);
-        }
-    })
-
-}
 onMounted(() => {
 
-    setTime();
-    for(let weekday in weekdays.value){
-        getOnePosition(weekdays.value[weekday],weekday);
+
+    for (let weekday in weekdays.value) {
+        getOnePosition(weekdays.value[weekday], weekday);
     }
 
 })
@@ -214,8 +186,8 @@ onMounted(() => {
             padding: 10px 20px;
             border: 2px solid rgb(204, 204, 204);
             border-radius: 5px;
-     
-          
+
+
         }
     }
 }
@@ -227,10 +199,13 @@ onMounted(() => {
     bottom: 0;
     background-color: #fff;
     z-index: 1;
-    button{
+
+    button {
         width: 100%;
-    &:hover{
-        background-color: rgb(186, 186, 255);
-    }}
+
+        &:hover {
+            background-color: rgb(186, 186, 255);
+        }
+    }
 }</style>
 
