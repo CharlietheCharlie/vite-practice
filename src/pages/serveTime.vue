@@ -5,7 +5,8 @@
     </div>
     <div class="content">
         <h1 class="title">供應時間</h1>
-        <div class="weekday" :class="index" v-for="weekday, index in weekdays">
+        <div class="weekdays">
+            <div class="weekday" :class="index" v-for="weekday, index in weekdays">
             <h2>星期{{ chineseWeekdays[index[8]] }}</h2>
             <label class="switch">
                 <input type="checkbox" :checked="Number(weekday)"
@@ -14,11 +15,12 @@
             </label>
             <p v-if="Number(weekday)">本日供餐</p>
             <p v-if="!Number(weekday)">本日不供餐</p>
-            <TimeSelector v-for="sec, i in onePositions[index]?.length" :onePositions="onePositions" :weekdays="weekdays"
-                :index="index" :weekday="weekday" :section="onePositions[index][i]" @change="intervalChange(index)">
+            <TimeSelector v-for="sec, i in onePositions[index]?.length" :key="sec" :onePositions="onePositions" :weekdays="weekdays"
+                :index="index" :weekday="weekday" :section="onePositions[index][i]" @change="intervalChange(index)" @delete="deleteSelector(index,i)">
             </TimeSelector>
             <button class="rounded bg-gray-200 py-2 px-4 hover:bg-gray-400" @click="addSelector(index)"
                 v-if="weekday !== '0'.repeat(48) && weekday !== '1'.repeat(48)">新增</button>
+        </div>
         </div>
     </div>
 </template>
@@ -27,13 +29,11 @@
 import { ref, computed, onMounted } from 'vue';
 import TimeSelector from '@/components/TimeSelector.vue';
 const date = new Date();
-const resetDate = computed(() => {
-    date.setHours(0, 0, 0);
-    return new Date(date);
-});
+// const resetDate = computed(() => {
+//     date.setHours(0, 0, 0);
+//     return new Date(date);
+// });
 const selectorAmount = ref({});
-const serveStarts = ref([]);
-const serveEnds = ref([]);
 const weekdays = ref({
     "week_day0": "000000000000000000000000000000000000000000000000",
     "week_day1": "111111111111111111111111111111111111111111111111",
@@ -51,8 +51,9 @@ const showData = ref(false);
 const intervalChange = function (index) {
     //取得變動的選擇器
     const sections = onePositions.value[index];
+    console.log(sections);
     //先建立一個全部為0的資料
-    let newWeekdays = sections.length<=1?'0'.repeat(weekdays.value[index].length):weekdays.value[index];
+    let newWeekdays = '0'.repeat(weekdays.value[index].length);
     //用迴圈找出有幾個選擇器區間
     for (let i = 0; i < sections.length; i++) {
         
@@ -97,7 +98,13 @@ const getOnePosition = (weekday, index) => {
     }
     onePositions.value[index] = positions;
 }
-
+//移除選擇器
+const deleteSelector = (index,i)=>{
+    const updatedPositions =[...onePositions.value[index]];
+    updatedPositions.splice(i, 1);
+    onePositions.value[index] = updatedPositions;
+    intervalChange(index);
+}
 onMounted(() => {
 
 
@@ -109,7 +116,8 @@ onMounted(() => {
 </script>
 
 <style lang="scss" scoped>
-.weekday {
+.weekdays{
+    .weekday {
     margin: 10px;
     display: flex;
     flex-direction: column;
@@ -190,6 +198,8 @@ onMounted(() => {
 
         }
     }
+}
+
 }
 
 .fixed {

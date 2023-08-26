@@ -26,12 +26,17 @@ header{
         text-align: center;
         display: flex;
         align-items:center;
-        justify-content: end;
+        justify-content: flex-end;
         li{
-            padding: 20px 30px;
-          
+            flex-basis: 100%;
             &:hover{
                 background-color: rgb(104, 157, 236);
+            }
+            a{
+                font-weight: bold;
+                height: 100%;
+                line-height: 50px;
+                display: block;
             }
         };
     };

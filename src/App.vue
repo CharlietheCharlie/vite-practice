@@ -14,7 +14,7 @@ $main:rgb(88, 88, 232);
 
 .content{
     width:80vw;
-    margin: 0 auto;
+    margin: 30px auto 0;
     text-align: center;
     font-size: 14px;
     margin-bottom: 100px;
