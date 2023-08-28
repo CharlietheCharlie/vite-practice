@@ -4,12 +4,10 @@
     </div>
 </template>
 
-<script>
-export const isFieldError = ()=>{
-
-}
+<script setup>
+import { ref, provide } from 'vue';
+const isFieldError = ref(false);
+provide('isFieldError', isFieldError);
 </script>
 
-<style lang="scss" scoped>
-
-</style>
+<style lang="scss" scoped></style>

@@ -7,6 +7,7 @@
         'gdb-input--disabled': state.isDisabled,
         'gdb-input--full': fullWidth,
     }">
+
         <div class="gdb-input__inner" :class="{ 'gdb-input__inner--focus': isFocus }">
             <div v-if="state.hasPrefix" class="gdb-input__prefix">{{ prefix }}</div>
             <div class="gdb-input__input-wrapper">
@@ -25,9 +26,9 @@
 <script lang="ts">
 
 import { isEmpty } from 'lodash-es'
-import { isFieldError } from '@/components/form/GDBFormItem.vue'
+// import { isFieldError } from '../components/form/GDBFormItem.vue'
 import type { PropType } from 'vue'
-import {defineComponent, computed, ref, inject,readonly} from 'vue'
+import { defineComponent, computed, ref, inject, readonly } from 'vue'
 
 export default defineComponent({
     name: 'GDBInput',
@@ -102,6 +103,7 @@ export default defineComponent({
                     default:
                         emit('update:modelValue', val)
                         break
+                        
                 }
             },
         })
@@ -109,7 +111,7 @@ export default defineComponent({
         const isShowPassword = ref(false)
         const isFocus = ref(false)
 
-        const isError = inject(isFieldError, readonly(computed(() => false)))
+        const isError = inject('isFieldError', readonly(computed(() => false)))
 
         const state = computed(() => {
             return {
@@ -131,8 +133,8 @@ export default defineComponent({
 
         const blurEvent = () => {
             const { max, min, hasDecimalPoint, type } = props
-
-            if (type !== 'number') return
+            if (type !== 'number'){isFocus.value=false; 
+                return;}
             if (value.value === '') value.value = 0
             if (!hasDecimalPoint) value.value = Math.floor(Number(value.value))
             if (Number(value.value) < min) value.value = min
@@ -157,21 +159,26 @@ export default defineComponent({
 <style lang="scss" scoped>
 @import '@/assets/global.scss';
 
-%font-s-default-regular{
+%font-s-default-regular {
     font-size: 14px;
 }
-%px-l{
-    font-size: 20px;
+
+%px-l {
+    padding-left: 20px;
+    padding-right: 20px;
 }
-%font-m-default-regular{
+
+%font-m-default-regular {
     font-size: 16px;
 }
-%icon-s{
+
+%icon-s {
     width: 10px;
 }
+
 .gdb-input {
     $self: &;
-
+    margin: 20px;
     position: relative;
     display: block;
     width: 100%;
@@ -209,10 +216,11 @@ export default defineComponent({
     &__suffix {
         @extend %font-s-default-regular;
         @extend %px-l;
-
         display: flex;
-        flex: 1 0 max-content;
+        width: 50px;
+        flex: 1 0 100px;
         align-items: center;
+        justify-content: center;
         height: 100%;
         color: map-get($theme-colors, white);
         background-color: map-get($theme-colors, gray-3);
@@ -261,7 +269,9 @@ export default defineComponent({
 
     &__password-icon {
         @extend %icon-s;
-
+        position: absolute;
+        right: 50px;
+        width: 100%;
         color: map-get($theme-colors, gray-3);
     }
 

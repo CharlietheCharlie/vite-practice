@@ -1,36 +1,32 @@
 <template>
-    
-    <span
-        class="gdb-switch"
-        :class="{
-          'gdb-switch--checked': checked,
-          'gdb-switch--disabled': disabled,
-          'gdb-switch--spacing': spacing,
-        }"
-        @click="toggle"
-      >
-        <div class="gdb-switch__inner">
-          <div class="gdb-switch__switch">
-            <span class="gdb-switch__icon material-icons-outlined"> {{ checked ? 'done' : 'close ' }} </span>
-          </div>
-        </div>
-        <div v-if="label || description" class="gdb-switch__right">
-          <span v-if="label" class="gdb-switch__label" v-text="label" />
-          <div v-if="description" class="gdb-switch__description">
-            <GDBDescription :text-color="descriptionColor" :icon-color="iconDescriptionColor">
-              {{ description }}
-            </GDBDescription>
-          </div>
-        </div>
-      </span>
-    
+  <span class="gdb-switch" :class="{
+    'gdb-switch--checked': checked,
+    'gdb-switch--disabled': disabled,
+    'gdb-switch--spacing': spacing,
+  }" @click="toggle">
+    <div class="gdb-switch__inner">
+      <div class="gdb-switch__switch">
+        <span class="gdb-switch__icon material-icons-outlined"> {{ checked ? 'done' : 'close ' }} </span>
+      </div>
+    </div>
+    <div v-if="label || description" class="gdb-switch__right">
+      <span v-if="label" class="gdb-switch__label" v-text="label" />
+      <div v-if="description" class="gdb-switch__description">
+        <GDBDescription :text-color="descriptionColor" :icon-color="iconDescriptionColor">
+          {{ description }}
+        </GDBDescription>
+      </div>
+    </div>
+  </span>
 </template>
 
 <script>
 
 import { isNumber, isString, isNull, isBoolean, isUndefined } from 'lodash-es'
-import {defineComponent, computed} from 'vue';
+import { defineComponent, computed } from 'vue';
+import GDBDescription from './form/GDBDescription.vue';
 export default defineComponent({
+  components:{ GDBDescription },
   props: {
     modelValue: {
       type: [String, Boolean, Number],
@@ -116,105 +112,109 @@ export default defineComponent({
 
 <style lang="scss" scoped>
 @import '@/assets/global.scss';
-%mb-xl{
 
+%mb-xl {
+  margin-bottom: 20px;
 }
-%icon-s{
 
-
+%icon-s {
+  width: 20px;
 }
-%me-xs{
 
+%me-xs {
+  margin-inline-end: 1px;
 }
-%font-m-default-bold{
 
+%font-m-default-bold {
+  font-size: 16px;
+  font-weight: bold;
 }
-%ms-s{
 
+%ms-s {
+  margin-inline-start: 2px;
 }
 
 .gdb-switch {
-        $self: &;
+  $self: &;
 
-        display: inline-flex;
-        vertical-align: middle;
-        cursor: pointer;
-        user-select: none;
+  display: inline-flex;
+  vertical-align: middle;
+  cursor: pointer;
+  user-select: none;
 
-        &--spacing {
-          @extend %mb-xl;
-        }
+  &--spacing {
+    @extend %mb-xl;
+  }
 
-        &__inner {
-          position: relative;
-          display: inline-block;
-          width: 50px;
-          height: 26px;
-          background-color: v-bind('style.disactiveColor');
-          border-radius: map-get($border-radius, m);
-        }
+  &__inner {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 26px;
+    background-color: v-bind('style.disactiveColor');
+    border-radius: map-get($border-radius, m);
+  }
 
-        &__switch {
-          position: absolute;
-          top: 50%;
-          left: 3px;
-          z-index: 1;
-          width: 20px;
-          height: 20px;
-          color: v-bind('style.disactiveColor');
-          background-color: map-get($theme-colors, white);
-          border-radius: map-get($border-radius, circle);
-          transition: all 0.3s;
-          transform: translate(0, -50%);
-        }
+  &__switch {
+    position: absolute;
+    top: 50%;
+    left: 3px;
+    z-index: 1;
+    width: 20px;
+    height: 20px;
+    color: v-bind('style.disactiveColor');
+    background-color: map-get($theme-colors, white);
+    border-radius: map-get($border-radius, circle);
+    transition: all 0.3s;
+    transform: translate(0, -50%);
+  }
 
-        &__icon {
-          @extend %icon-s;
+  &__icon {
+    @extend %icon-s;
 
-          &--spacing {
-            @extend %me-xs;
-          }
-        }
+    &--spacing {
+      @extend %me-xs;
+    }
+  }
 
-        &__right {
-          display: flex;
-          flex: 1;
-          flex-direction: column;
-          justify-content: center;
-        }
+  &__right {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    justify-content: center;
+  }
 
-        &__label {
-          @extend %font-m-default-bold;
-          @extend %ms-s;
+  &__label {
+    @extend %font-m-default-bold;
+    @extend %ms-s;
 
-          color: v-bind('style.labelColor');
-        }
+    color: v-bind('style.labelColor');
+  }
 
-        &__description {
-          display: inline-flex;
+  &__description {
+    display: inline-flex;
 
-          @extend %ms-s;
-        }
+    @extend %ms-s;
+  }
 
-        &--checked {
-          #{$self}__inner {
-            background-color: v-bind('style.activeColor');
-          }
+  &--checked {
+    #{$self}__inner {
+      background-color: v-bind('style.activeColor');
+    }
 
-          #{$self}__switch {
-            left: 27px;
-            color: v-bind('style.activeColor');
-          }
-        }
+    #{$self}__switch {
+      left: 27px;
+      color: v-bind('style.activeColor');
+    }
+  }
 
-        &--disabled {
-          cursor: not-allowed;
+  &--disabled {
+    cursor: not-allowed;
 
-          #{$self}__inner,
-          #{$self}__label {
-            opacity: 0.5;
-          }
-        }
-      }
-    
+    #{$self}__inner,
+    #{$self}__label {
+      opacity: 0.5;
+    }
+  }
+}
 </style>
